@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_obat_modal'])) 
 
   if ($stmt->execute()) {
     // Update successful
-    header("Location: menuObat.php");
+    header("Location: ObatAdmin.php");
     exit();
   } else {
     // Update failed, handle error (you may redirect or display an error message)
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_obat'])) {
 
   if ($stmt->execute()) {
     // Insertion successful
-    header("Location: menuObat.php");
+    header("Location: ObatAdmin.php");
     exit();
   } else {
     // Insertion failed, handle error (you may redirect or display an error message)
@@ -76,7 +76,7 @@ if (isset($_POST['delete_obat'])) {
       ob_clean();
 
       // Redirect kembali ke halaman utama atau tampilkan pesan keberhasilan
-      header("Location: menuObat.php");
+      header("Location: ObatAdmin.php");
       exit();
   } else {
       // Penghapusan obat gagal, tangani kesalahan
@@ -184,7 +184,7 @@ $nomorUrut = 1;
           </button>
         </div>
         <div class="modal-body">
-          <form method="post" action="menuObat.php">
+          <form method="post" action="ObatAdmin.php">
             <!-- Replace with the actual update PHP file -->
             <input type="hidden" name="id" id="update_id">
             <div class="form-group">
@@ -217,7 +217,7 @@ $nomorUrut = 1;
         </button>
       </div>
       <div class="modal-body">
-        <form method="post" action="menuObat.php">
+        <form method="post" action="ObatAdmin.php">
           <!-- Replace with the actual add PHP file -->
           <div class="form-group">
             <label for="add_nama_obat">Nama Obat</label>

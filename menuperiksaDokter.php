@@ -128,7 +128,7 @@ if (!isset($_SESSION['nama'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="menuJadwalPeriksa.php" class="nav-link"> 
+                            <a href="menujadwalPeriksa.php" class="nav-link"> 
                                 <i class="nav-icon fas fa-edit"></i>
                                 <p>
                                     Jadwal Periksa
@@ -176,7 +176,7 @@ if (!isset($_SESSION['nama'])) {
                             include("periksaDokter.php");
                         } else {
                             // Include other pages based on the value of $_GET['page']
-                            include($_GET['page'] . ".php");
+                            include($_GET['page'] . "jadwalPeriksa.php");
                         }
                     } else {
                         // If no specific page is requested, include a default content

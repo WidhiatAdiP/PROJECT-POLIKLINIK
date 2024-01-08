@@ -1,137 +1,217 @@
 <?php
+// Pindahkan session_start ke bagian paling atas
 if (!isset($_SESSION)) {
-  session_start();
+    session_start();
+}
+
+ob_start();
+
+// Sertakan file koneksi setelah session_start
+include_once("koneksi.php");
+
+// Periksa apakah pengguna belum login
+if (!isset($_SESSION['nama'])) {
+    // Redirect ke halaman login
+    header("Location: index.php"); // Ganti "login.php" dengan nama file login sebenarnya
+    exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <!-- Add your head section here -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Menu Jadwal Periksa</title>
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/css/bootstrap.min.css">
-
-  <!-- jQuery and Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/js/bootstrap.min.js"></script>
-
-  <script>
-    $(document).ready(function () {
-      // Event listener for the "View" button
-      $('.view-btn').click(function () {
-        var jadwal_periksaId = $(this).data('id');
-
-        // Ajax request to fetch additional details
-        $.ajax({
-          type: 'POST',
-          url: 'get_details.php',
-          data: { jadwal_periksa_id: jadwal_periksaId },
-          success: function (response) {
-            // Display the fetched details in the modal body
-            $('#viewModalBody').html(response);
-
-            // Show the modal
-            $('#viewModal').modal('show');
-          }
-        });
-      });
-    });
-  </script>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="dist/css/adminlte.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
-  <div class="wrapper">
-    <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-body">
-                <table id="example2" class="table table-bordered table-hover">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Hari</th>
-                      <th>Jam Mulai</th>
-                      <th>Jam Selesai</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php 
-                      include './koneksi.php';
+    <div class="wrapper">
 
-                      $query = "SELECT * FROM jadwal_periksa";
-                      $results = $mysqli->query($query);
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+            </ul>
 
-                      while ($jadwal_periksaRow = $results->fetch_assoc()) {
-                    ?>
-                      <tr>
-                        <td><?= $jadwal_periksaRow['id'] ?></td>
-                        <td><?= $jadwal_periksaRow['hari'] ?></td>
-                        <td><?= $jadwal_periksaRow['jam_mulai'] ?></td>
-                        <td><?= $jadwal_periksaRow['jam_selesai'] ?></td>
-                        <td>
-                          <button data-toggle="modal" data-target="#detailModal<?= $jadwal_periksaRow['id'] ?>" class="btn btn-primary">
-                            Jadwal Periksa
-                          </button>
-                        </td>
-                      </tr>
-                    <?php
-                      }
-                    ?>
-                  </tbody>
-                </table>
-              </div>
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Navbar Search -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <div class="navbar-search-block">
+                        <form class="form-inline">
+                            <div class="input-group input-group-sm">
+                                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                                <div class="input-group-append">
+                                    <button class="btn btn-navbar" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </li>
+                <?php
+                if (isset($_SESSION['nama'])) {
+                    // Jika pengguna sudah login, tampilkan tombol "Logout"
+                ?>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="logout.php">Logout (<?php echo $_SESSION['nama'] ?>)</a>
+                        </li>
+                    </ul>
+                <?php
+                }
+                ?>
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a href="index3.html" class="brand-link">
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">Dokter Poliklinik</span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user panel (optional) -->
+
+                <!-- SidebarSearch Form -->
+                <div class="form-inline">
+                    <div class="input-group" data-widget="sidebar-search">
+                        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-sidebar">
+                                <i class="fas fa-search fa-fw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+              with font-awesome or any other icon font library -->
+                        <li class="nav-item menu-open">
+                            <a href="menuperiksaDokter.php" class="nav-link">
+                            <i class="nav-icon fas fa-table"></i>
+                                <p>
+                                    Periksa
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="menuriwayatperiksaDokter.php" class="nav-link"> 
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    Riwayat Periksa
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="jadwalPeriksa.php" class="nav-link"> 
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    Jadwal Periksa
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- /.sidebar-menu -->
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
+            <!-- /.sidebar -->
+        </aside>
 
-  <!-- Modal for displaying details -->
-  <div class="modal fade" id="detailModal<?= $d['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalScrollableTitle">Jadwal Periksa <?= $d['nama'] ?></h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0">Jadwal Periksa</h1>
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="menujadwalPeriksa.php">Home</a></li>
+                                <li class="breadcrumb-item active">Jadwal Periksa</li>
+                            </ol>
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+
+            <!-- Main content -->
+            <div class="content">
+                <div class="container-fluid">
+                    <?php
+                    // Check if the requested page is set
+                    if (isset($_GET['page'])) {
+                        // Check if the requested page is login, and if so, include loginDokter.php
+                        if ($_GET['page'] === 'loginDokter') {
+                            include("loginDokter.php");
+                        } elseif ($_GET['page'] === 'jadwalperiksa') {
+                            // Include riwayatperiksaDokter.php for the 'jadwalperiksa' page
+                            include("jadwalPeriksa.php");
+                        } else {
+                            // Include other pages based on the value of $_GET['page']
+                            include($_GET['page'] . ".php");
+                        }
+                    } else {
+                        // If no specific page is requested, include a default content
+                        include("jadwalPeriksa.php");
+                    }
+                    ?>
+                </div><!-- /.container-fluid -->
+            </div>
+
+            <!-- /.content -->
         </div>
-        <div class="modal-body">
-          <?php if ($details->num_rows == 0) : ?>
-              <p class="my-2 text-danger">Tidak Ditemukan Jadwal Periksa</p>
-          <?php else : ?>
-              <table class="table table-bordered">
-                  <thead>
-                      <tr>
-                          <th scope="col">No</th>
-                          <th scope="col">Hari</th>
-                          <th scope="col">Jam Mulai</th>
-                          <th scope="col">Jam Selesai</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <?php while ($detail = $details->fetch_assoc()) : ?>
-                          <tr>
-                              <td><?= $no_detail++; ?></td>
-                              <td><?= $detail['id']; ?></td>
-                              <td><?= $detail['hari']; ?></td>
-                              <td><?= $detail['jam_mulai']; ?></td>
-                              <td><?= $detail['jam_selesai']; ?></td>
-                          </tr>
-                      <?php endwhile ?>
-                  </tbody>
-              </table>
-          <?php endif ?>
-          </div>
-      </div>
+        <!-- /.content-wrapper -->
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+            <div class="p-3">
+                <h5>Title</h5>
+                <p>Sidebar content</p>
+            </div>
+        </aside>
+        <!-- /.control-sidebar -->
+
     </div>
-  </div>
+    <!-- ./wrapper -->
+
+    <!-- REQUIRED SCRIPTS -->
+
+    <!-- jQuery -->
+    <script src="plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="dist/js/adminlte.min.js"></script>
+
 </body>
 
 </html>
