@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_obat_modal'])) 
 
   if ($stmt->execute()) {
     // Update successful
-    header("Location: menuAdmin.php");
+    header("Location: menuObat.php");
     exit();
   } else {
     // Update failed, handle error (you may redirect or display an error message)
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_obat'])) {
 
   if ($stmt->execute()) {
     // Insertion successful
-    header("Location: menuAdmin.php");
+    header("Location: menuObat.php");
     exit();
   } else {
     // Insertion failed, handle error (you may redirect or display an error message)
@@ -76,7 +76,7 @@ if (isset($_POST['delete_obat'])) {
       ob_clean();
 
       // Redirect kembali ke halaman utama atau tampilkan pesan keberhasilan
-      header("Location: menuAdmin.php");
+      header("Location: menuObat.php");
       exit();
   } else {
       // Penghapusan obat gagal, tangani kesalahan
@@ -97,6 +97,8 @@ $obatResult = $mysqli->query($obatQuery);
 
 // Fetch the data as an associative array
 $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
+
+$nomorUrut = 1;
 ?>
 
 <!DOCTYPE html>
@@ -135,12 +137,12 @@ $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
                     <?php
                     foreach ($obatData as $obatRow) {
                       echo "<tr>";
-                      echo "<td>" . $obatRow['id'] . "</td>";
+                      echo "<td>" . $nomorUrut++ . "</td>"; // Menampilkan nomor urut
                       echo "<td>" . $obatRow['nama_obat'] . "</td>";
                       echo "<td>" . $obatRow['kemasan'] . "</td>";
                       echo "<td>" . number_format($obatRow['harga'], 0, ',', '.') . " IDR</td>"; // Format harga as IDR
                       echo "<td>
-                                                <form method='post' action=''>
+                        <form method='post' action=''>
                                                     <input type='hidden' name='id' value='" . $obatRow['id'] . "'>
                                                     <input type='hidden' name='new_nama_obat' value='" . $obatRow['nama_obat'] . "'>
                                                     <input type='hidden' name='new_kemasan' value='" . $obatRow['kemasan'] . "'>
@@ -182,7 +184,7 @@ $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
           </button>
         </div>
         <div class="modal-body">
-          <form method="post" action="menuAdmin.php">
+          <form method="post" action="menuObat.php">
             <!-- Replace with the actual update PHP file -->
             <input type="hidden" name="id" id="update_id">
             <div class="form-group">
@@ -215,7 +217,7 @@ $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
         </button>
       </div>
       <div class="modal-body">
-        <form method="post" action="menuAdmin.php">
+        <form method="post" action="menuObat.php">
           <!-- Replace with the actual add PHP file -->
           <div class="form-group">
             <label for="add_nama_obat">Nama Obat</label>
@@ -236,7 +238,7 @@ $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
   </div>
 </div>
 
-
+	
   <!-- Bootstrap JS and jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/js/bootstrap.min.js"></script>

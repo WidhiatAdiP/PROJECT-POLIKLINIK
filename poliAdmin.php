@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_poli_modal'])) 
   // Update poli in the database using prepared statement
   $updateQuery = "UPDATE poli SET nama_poli=?, keterangan=? WHERE id=?";
   $stmt = $mysqli->prepare($updateQuery);
-  $stmt->bind_param("sssi", $newNamaPoli, $newKeterangan, $id);
+  $stmt->bind_param("ssi", $newNamaPoli, $newKeterangan, $id);
 
   if ($stmt->execute()) {
     // Update successful
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_poli'])) {
   // Insert new poli into the database using prepared statement
   $insertQuery = "INSERT INTO poli (nama_poli, keterangan) VALUES (?, ?)";
   $stmt = $mysqli->prepare($insertQuery);
-  $stmt->bind_param("sss", $newNamaPoli, $newKeterangan);
+  $stmt->bind_param("ss", $newNamaPoli, $newKeterangan);
 
   if ($stmt->execute()) {
     // Insertion successful
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_poli'])) {
   $stmt->close();
 }
 
-// Menangani penghapusan poli dan catatan terkait di detail_periksa
+// Menangani penghapusan poli dan catatan terkait di tabel detail_periksa
 if (isset($_POST['delete_poli'])) {
   $id = $_POST['id'];
 
@@ -76,16 +76,14 @@ if (isset($_POST['delete_poli'])) {
   $stmtPoli->close();
 }
 
-
-
-
-
-// Fetch data from the 'obat' table
-$obatQuery = "SELECT * FROM obat";
-$obatResult = $mysqli->query($obatQuery);
+// Fetch data from the 'poli' table
+$poliQuery = "SELECT * FROM poli";
+$poliResult = $mysqli->query($poliQuery);
 
 // Fetch the data as an associative array
-$obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
+$poliData = $poliResult->fetch_all(MYSQLI_ASSOC);
+
+$nomorUrut = 1;
 ?>
 
 <!DOCTYPE html>
@@ -108,45 +106,41 @@ $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
           <div class="col-12">
             <div class="card">
               <div class="card-body">
-              <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addModal">Tambah Obat</button>
+                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addModal">Tambah Poli</button>
 
                 <table id="example2" class="table table-bordered table-hover">
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Nama Obat</th>
-                      <th>Kemasan</th>
-                      <th>Harga</th>
+                      <th>Nama Poli</th>
+                      <th>Keterangan</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
                     <?php
-                    foreach ($obatData as $obatRow) {
+                    foreach ($poliData as $poliRow) {
                       echo "<tr>";
-                      echo "<td>" . $obatRow['id'] . "</td>";
-                      echo "<td>" . $obatRow['nama_obat'] . "</td>";
-                      echo "<td>" . $obatRow['kemasan'] . "</td>";
-                      echo "<td>" . number_format($obatRow['harga'], 0, ',', '.') . " IDR</td>"; // Format harga as IDR
+                      echo "<td>" . $nomorUrut++ . "</td>"; // Menampilkan nomor urut
+                      echo "<td>" . $poliRow['nama_poli'] . "</td>";
+                      echo "<td>" . $poliRow['keterangan'] . "</td>";
                       echo "<td>
-                                                <form method='post' action=''>
-                                                    <input type='hidden' name='id' value='" . $obatRow['id'] . "'>
-                                                    <input type='hidden' name='new_nama_obat' value='" . $obatRow['nama_obat'] . "'>
-                                                    <input type='hidden' name='new_kemasan' value='" . $obatRow['kemasan'] . "'>
-                                                    <input type='hidden' name='new_harga' value='" . $obatRow['harga'] . "'>
+                        <form method='post' action=''>
+                            <input type='hidden' name='id' value='" . $poliRow['id'] . "'>
+                            <input type='hidden' name='new_nama_poli' value='" . $poliRow['nama_poli'] . "'>
+                            <input type='hidden' name='new_keterangan' value='" . $poliRow['keterangan'] . "'>
 
-                                                    <button type='button' name='update_obat' class='btn btn-warning btn-sm update-btn' data-toggle='modal' data-target='#updateModal' 
-                                                    data-id='" . $obatRow['id'] . "' 
-                                                    data-nama_obat='" . $obatRow['nama_obat'] . "' 
-                                                    data-kemasan='" . $obatRow['kemasan'] . "' 
-                                                    data-harga='" . $obatRow['harga'] . "'>Update</button>
-                                                    
-                                                    <form method='post' action=''>
-                                                        <input type='hidden' name='id' value='" . $obatRow['id'] . "'>
-                                                        <button type='submit' name='delete_obat' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure?\");'>Delete</button>
-                                                    </form>
-                                                </form>
-                                            </td>";
+                            <button type='button' name='update_poli' class='btn btn-warning btn-sm update-btn' data-toggle='modal' data-target='#updateModal' 
+                            data-id='" . $poliRow['id'] . "' 
+                            data-nama_poli='" . $poliRow['nama_poli'] . "' 
+                            data-keterangan='" . $poliRow['keterangan'] . "'>Update</button>
+
+                            <form method='post' action=''>
+                                <input type='hidden' name='id' value='" . $poliRow['id'] . "'>
+                                <button type='submit' name='delete_poli' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure?\");'>Delete</button>
+                            </form>
+                        </form>
+                      </td>";
                       echo "</tr>";
                     }
                     ?>
@@ -165,66 +159,55 @@ $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="updateModalLabel">Perbarui Obat</h5>
+          <h5 class="modal-title" id="updateModalLabel">Perbarui Poli</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <form method="post" action="menuAdmin.php">
-            <!-- Replace with the actual update PHP file -->
+          <form method="post" action="daftarpoliAdmin.php">
             <input type="hidden" name="id" id="update_id">
             <div class="form-group">
-              <label for="update_nama_obat">Nama Obat</label>
-              <input type="text" class="form-control" id="update_nama_obat" name="new_nama_obat" required>
+              <label for="update_nama_poli">Nama Poli</label>
+              <input type="text" class="form-control" id="update_nama_poli" name="new_nama_poli" required>
             </div>
             <div class="form-group">
-              <label for="update_kemasan">Kemasan</label>
-              <input type="text" class="form-control" id="update_kemasan" name="new_kemasan" required>
+              <label for="update_keterangan">Keterangan</label>
+              <input type="text" class="form-control" id="update_keterangan" name="new_keterangan" required>
             </div>
-            <div class="form-group">
-              <label for="update_harga">Harga</label>
-              <input type="text" class="form-control" id="update_harga" name="new_harga" required>
-            </div>
-            <button type="submit" name="update_obat_modal" class="btn btn-primary">Update</button>
+            <button type="submit" name="update_poli_modal" class="btn btn-primary">Update</button>
           </form>
         </div>
       </div>
     </div>
   </div>
 
-<!-- Modal for adding obat -->
-<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addModalLabel">Tambah Obat</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form method="post" action="menuAdmin.php">
-          <!-- Replace with the actual add PHP file -->
-          <div class="form-group">
-            <label for="add_nama_obat">Nama Obat</label>
-            <input type="text" class="form-control" id="add_nama_obat" name="add_nama_obat" required>
-          </div>
-          <div class="form-group">
-            <label for="add_kemasan">Kemasan</label>
-            <input type="text" class="form-control" id="add_kemasan" name="add_kemasan" required>
-          </div>
-          <div class="form-group">
-            <label for="add_harga">Harga</label>
-            <input type="text" class="form-control" id="add_harga" name="add_harga" required>
-          </div>
-          <button type="submit" name="add_obat" class="btn btn-primary">Tambah</button>
-        </form>
+  <!-- Modal for adding poli -->
+  <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addModalLabel">Tambah Poli</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="daftarpoliAdmin.php">
+            <div class="form-group">
+              <label for="add_nama_poli">Nama Poli</label>
+              <input type="text" class="form-control" id="add_nama_poli" name="add_nama_poli" required>
+            </div>
+            <div class="form-group">
+              <label for="add_keterangan">Keterangan</label>
+              <input type="text" class="form-control" id="add_keterangan" name="add_keterangan" required>
+            </div>
+            <button type="submit" name="add_poli" class="btn btn-primary">Tambah</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
 
   <!-- Bootstrap JS and jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -240,14 +223,12 @@ $obatData = $obatResult->fetch_all(MYSQLI_ASSOC);
       updateButtons.forEach(function(button) {
         button.addEventListener('click', function() {
           var id = button.getAttribute('data-id');
-          var nama_obat = button.getAttribute('data-nama_obat');
-          var kemasan = button.getAttribute('data-kemasan');
-          var harga = button.getAttribute('data-harga');
+          var nama_poli = button.getAttribute('data-nama_poli');
+          var keterangan = button.getAttribute('data-keterangan');
 
           document.getElementById('update_id').value = id;
-          document.getElementById('update_nama_obat').value = nama_obat;
-          document.getElementById('update_kemasan').value = kemasan;
-          document.getElementById('update_harga').value = harga;
+          document.getElementById('update_nama_poli').value = nama_poli;
+          document.getElementById('update_keterangan').value = keterangan;
         });
       });
     });
