@@ -117,7 +117,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
               with font-awesome or any other icon font library -->
             <li class="nav-item menu-open">
             <li class="nav-item">
-              <a href="menuObat.php" class="nav-link">
+              <a href="ObatAdmin.php" class="nav-link">
                 <i class="nav-icon fas fa-table"></i>
                 <p>
                   Obat
