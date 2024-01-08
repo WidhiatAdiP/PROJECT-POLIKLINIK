@@ -129,6 +129,15 @@ if (!isset($_SESSION['nama'])) {
                                 </p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="menujadwalPeriksa.php" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    Jadwal Periksa
+
+                                </p>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
